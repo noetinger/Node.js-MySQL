@@ -63,7 +63,7 @@ function AskItems() {
         })
 };
 
-//Purchase the items / check sql database
+//Purchase the items / check / update sql database based on answers above.
 function buyItems(id, quantity) {
     //console.log("Buy Items Function Initiated!")
     connection.query("SELECT * FROM products WHERE id = " + id, function (err, res) {
