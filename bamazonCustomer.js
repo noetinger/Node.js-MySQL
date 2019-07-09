@@ -1,5 +1,6 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
+const Table = require("cli-table");
 
 //Create connection to sql database for data
 const connection = mysql.createConnection({
@@ -14,52 +15,72 @@ const connection = mysql.createConnection({
 connection.connect(function (err) {
     if (err) throw err;
     //run Start function
-    start();
+    console.log("Welcome to bamazon! This is what we have to offer:")
+    displayItems();
 })
 
-//Start function
-function start() {
-    console.log("initiate start function")
-    //run Display function
-    displayItems();
-};
-
-function displayItems() {
-    let itemDisplay = [];
-    //connect to database
-    connection.query("SELECT * FROM products", function (err, results) {
+//Display the items in a table
+var displayItems = function () {
+    //console.log("Display Items function initiated!")
+    let query = "Select * FROM products";
+    connection.query(query, function (err, res) {
         if (err) throw err;
-        //display each of the items in stock
-        for (var i = 0; i < results.length; i++) {
-            itemDisplay.push(results[i]);
+        let displayItemsTable = new Table({
+            head: ["Item ID", "Product Name", "Department", "Price", "Quantity"],
+            colWidths: [10, 25, 20, 10, 10]
+        });
+        for (let i = 0; i < res.length; i++) {
+            displayItemsTable.push(
+                [res[i].id, res[i].name, res[i].department, res[i].price, res[i].stock]
+            );
         }
-        console.log(itemDisplay);
-        //run askItem function
-        AskItem();
-    })
-};
+        console.log("*************************************************************************************")
+        console.log(displayItemsTable.toString());
+        AskItems();
+    });
+}
 
-//Ask what item ID the customer wants to buy
-function AskItem() {
+//Ask what Items / Quantity the customer wants to buy
+function AskItems() {
+    //console.log("Ask Items function initiated!")
     inquirer
         .prompt([{
-            name: "id",
-            type: "input",
-            message: "Enter item ID for the item you'd like to buy: ",
-            // validate: function (value) {
-            //     //If the input does not equal a 
-            //     if (value !== itemDisplay[i].id) {
-            //         console.log("Please enter a valid ID");
-            //         AskItem();
-            //     };
-            // }
-        }])
+                name: "ID",
+                type: "input",
+                message: "Enter item ID for the item you'd like to buy:",
+            },
+            {
+                name: "QUANTITY",
+                type: "input",
+                message: "How many would you like to buy?",
+            }
+        ])
         .then(function (answer) {
-            console.log("AskItem function complete!")
+            //console.log("AskItem function .then initiated!")
+            let itemID = answer.ID;
+            let itemQuantity = answer.QUANTITY;
+            buyItems(itemID, itemQuantity);
         })
 };
 
-//Ask how many of the item the customer wants to buy
-function howMany() {
-    
+//Purchase the items / check sql database
+function buyItems(id, quantity) {
+    //console.log("Buy Items Function Initiated!")
+    connection.query("SELECT * FROM products WHERE id = " + id, function (err, res) {
+        if (err) throw err;
+        //console.log(res)
+        if (quantity <= res[0].stock) {
+            let totalCost = res[0].price * quantity;
+            console.log("Your total cost for " + quantity + " " + res[0].name + " is " + totalCost + ".")
+            console.log("Thank you for shopping at Bamazon! Have a wonderful day!")
+            console.log("\n")
+            console.log("\n")
+            connection.query("UPDATE products SET stock = stock - " + quantity + " WHERE id = " + id);
+        } else {
+            console.log("We do not have enough in stock. Please enter a different amount.")
+            console.log("\n")
+            console.log("\n")
+        }
+        displayItems();
+    });
 };
