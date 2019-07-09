@@ -14,7 +14,7 @@ const connection = mysql.createConnection({
 //Connect to the mysql server and sql database
 connection.connect(function (err) {
     if (err) throw err;
-    //run Start function
+    //run display function
     console.log("Welcome to bamazon! This is what we have to offer:")
     displayItems();
 })
