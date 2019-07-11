@@ -66,8 +66,9 @@ function viewProducts() {
         }
         console.log("*************************************************************************************")
         console.log(displayItemsTable.toString());
+        displayTasks();
     })
-    displayTasks();
+    //DISPLAY TASK   
 }
 
 //View Low Inventory
@@ -88,8 +89,8 @@ function viewLowInventory() {
         }
         console.log("*************************************************************************************")
         console.log(displayItemsTable.toString());
+        displayTasks();
     })
-    displayTasks();
 }
 
 //Add to Inventory
@@ -110,8 +111,8 @@ function restockInventoryDisplay() {
         }
         console.log("*************************************************************************************")
         console.log(displayItemsTable.toString());
+        restockInventoryQuestions();
     });
-    restockInventoryQuestions();
 };
 
 function restockInventoryQuestions() {
